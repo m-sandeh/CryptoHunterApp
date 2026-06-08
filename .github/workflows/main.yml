@@ -59,6 +59,9 @@ jobs:
           unzip -q sdk-tools.zip -d android-sdk
           rm sdk-tools.zip
           export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          java -version
           echo y | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --licenses
           $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
           # تحميل NDK r23b
@@ -69,9 +72,11 @@ jobs:
 
       - name: Build APK
         run: |
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
           export ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk-r23b
-          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
+          export PATH=$JAVA_HOME/bin:$ANDROID_SDK_ROOT/cmdline-tools/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
+          java -version
           yes | buildozer android debug
 
       - name: Upload APK
