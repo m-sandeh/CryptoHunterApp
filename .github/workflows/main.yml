@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04   # نستخدم 22.04 بدلاً من 20.04
     steps:
       - uses: actions/checkout@v4
 
@@ -13,13 +13,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Buildozer dependencies
+      - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          # تثبيت libtinfo5 من مستودعات Ubuntu 20.04 (يعمل على 22.04)
+          wget http://archive.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2_amd64.deb
+          sudo dpkg -i libtinfo5_6.3-2_amd64.deb || true
+          sudo apt install -f -y
+          # باقي الحزم المطلوبة
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
+
+      - name: Install Buildozer
+        run: |
           pip install buildozer cython
 
-      - name: Build APK with Buildozer
+      - name: Build APK
         run: |
           buildozer init
           sed -i 's/^requirements = .*/requirements = python3,kivy==2.2.1,requests/' buildozer.spec
